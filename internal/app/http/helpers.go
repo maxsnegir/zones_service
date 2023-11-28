@@ -1,7 +1,9 @@
 package http
 
 import (
+	"encoding/json"
 	"errors"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -28,4 +30,14 @@ func parseZoneIds(ids string, isRequired bool) ([]int, error) {
 		zoneIds = append(zoneIds, zoneId)
 	}
 	return zoneIds, nil
+}
+
+func writeResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	if data != nil {
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			// ToDO
+		}
+	}
 }

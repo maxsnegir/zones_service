@@ -32,3 +32,57 @@ func TestMain(m *testing.M) {
 
 	os.Exit(code)
 }
+
+var polygonGeoJson = `
+	{
+		"type": "FeatureCollection",
+		"features": [
+			{
+				"type": "Feature", 
+				"properties": {
+					"color": "#ff0000"
+				},
+				"geometry": {
+					"type": "Polygon", 
+					"coordinates": [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]
+				}
+			},
+			{
+				"type": "Feature",
+				"properties": {
+					"color": "#00ff00",
+					"title": "Second Polygon"
+				},
+				"geometry": {
+					"type": "Polygon",
+					"coordinates": [[[2, 2], [2, 3], [3, 3], [3, 2], [2, 2]]]
+				}
+			}
+		]
+	}`
+var multiPolygonGeoJson = `
+	{
+		"type": "FeatureCollection",
+		"features": [
+			{
+				"type": "Feature",
+				"properties": {
+					"color": "#ff0000"
+				},
+				"geometry": {
+					"type": "MultiPolygon",
+					"coordinates": [[[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]]
+				}
+			},
+			{
+				"type": "Feature",
+				"properties": {
+					"color": "#00ff00"
+				},
+				"geometry": {
+					"type": "MultiPolygon",
+					"coordinates": [[[[2, 2], [2, 3], [3, 3], [3, 2], [2, 2]]]]
+				}
+			}
+		]
+	}`

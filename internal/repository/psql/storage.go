@@ -57,18 +57,19 @@ func (s *Storage) SaveZoneFromFeatureCollection(ctx context.Context, featureColl
 		}
 	}()
 
-	err = s.db.QueryRow(ctx, createZoneQuery).Scan(&zoneId)
+	err = tx.QueryRow(ctx, createZoneQuery).Scan(&zoneId)
 	if err != nil {
 		return zoneId, fmt.Errorf("failed to create zone: %w", err)
 	}
-
 	for _, feature := range featureCollection.Features {
-		_, err = s.db.Exec(ctx, createGeometry, zoneId, feature.Geometry.ToEwkb(), feature.Properties)
+		_, err = tx.Exec(ctx, createGeometry, zoneId, feature.Geometry.ToEwkb(), feature.Properties)
 		if err != nil {
-			return zoneId, fmt.Errorf("failed to create zon_geometry: %w", err)
+			return zoneId, parsePostgisError(err)
 		}
 	}
-
+	if err = tx.Commit(ctx); err != nil {
+		return zoneId, fmt.Errorf("failed to commit transaction: %w", err)
+	}
 	return zoneId, nil
 }
 
@@ -104,4 +105,14 @@ func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]*geojson.Zone
 		result = append(result, &zoneGeoJson)
 	}
 	return result, nil
+}
+
+func (s *Storage) GetZonesCount(ctx context.Context) (int, error) {
+	const query = `SELECT COUNT(*) FROM zone;`
+	var count int
+	err := s.db.QueryRow(ctx, query).Scan(&count)
+	if err != nil {
+		return count, fmt.Errorf("failed to get zones count: %w", err)
+	}
+	return count, nil
 }

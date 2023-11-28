@@ -3,11 +3,13 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
 
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	"github.com/maxsnegir/zones_service/internal/repository/psql"
 )
 
 type ZoneSaver interface {
@@ -30,39 +32,34 @@ func CreateZone(log *slog.Logger, zoneSaver ZoneSaver) http.HandlerFunc {
 		var featureCollectionJSON geojson.FeatureCollectionJSON
 		var responseData ResponseData
 
-		w.Header().Set("Content-Type", "application/json")
-
 		if err := json.NewDecoder(r.Body).Decode(&featureCollectionJSON); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
 			responseData.Error = geojson.SerializationErr.Error()
-			if err := json.NewEncoder(w).Encode(responseData); err != nil {
-				log.Error("%s: error on encode response: %v", op, err)
-			}
+			writeResponse(w, http.StatusBadRequest, responseData)
 			return
 		}
 
 		var featureCollection geojson.FeatureCollection
 		if err := featureCollection.FromFeatureCollectionJSON(featureCollectionJSON); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
 			responseData.Error = err.Error()
-			if err := json.NewEncoder(w).Encode(responseData); err != nil {
-				log.Error("%s: error on encode response: %v", op, err)
-			}
+			writeResponse(w, http.StatusBadRequest, responseData)
 			return
 		}
 
 		zoneId, err := zoneSaver.SaveZoneFromFeatureCollection(r.Context(), featureCollection)
 		if err != nil {
+			var e psql.PostgisValidationErr
+			if errors.As(err, &e) {
+				responseData.Error = e.Message
+				writeResponse(w, http.StatusBadRequest, responseData)
+				return
+			}
+
 			log.Error(fmt.Sprintf("%s: %v", op, err))
-			w.WriteHeader(http.StatusInternalServerError)
+			writeResponse(w, http.StatusInternalServerError, nil)
 			return
 		}
 		responseData.ZoneId = zoneId
-
-		w.WriteHeader(http.StatusCreated)
-		if err := json.NewEncoder(w).Encode(responseData); err != nil {
-			log.Error("%s: error on encode response: %v", op, err)
-		}
+		writeResponse(w, http.StatusCreated, responseData)
 	}
 }
 
