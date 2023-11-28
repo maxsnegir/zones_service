@@ -1,0 +1,10 @@
+env: "local"
+
+storage:
+  dsn: "postgresql://postgres:postgres@localhost:6433/postgres?sslmode=disable"
+
+server:
+  host: "localhost"
+  port: 8080
+
+
