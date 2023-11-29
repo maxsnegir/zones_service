@@ -27,6 +27,9 @@ func parseZoneIds(ids string, isRequired bool) ([]int, error) {
 		if err != nil {
 			return nil, ErrInvalidZoneId
 		}
+		if zoneId < 1 {
+			return nil, ErrInvalidZoneId
+		}
 		zoneIds = append(zoneIds, zoneId)
 	}
 	return zoneIds, nil

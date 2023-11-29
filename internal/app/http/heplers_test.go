@@ -32,6 +32,18 @@ func Test_parseZoneIds(t *testing.T) {
 			wantErr:     false,
 			expectedIds: []int{1, 2, 3, 4},
 		},
+		{
+			name:        "negative ids",
+			zoneIdsStr:  "-1,2,3,4",
+			wantErr:     true,
+			expectedErr: ErrInvalidZoneId,
+		},
+		{
+			name:        "zero ids",
+			zoneIdsStr:  "0,2,3,4",
+			wantErr:     true,
+			expectedErr: ErrInvalidZoneId,
+		},
 	}
 
 	for _, tt := range tests {

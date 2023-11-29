@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -29,17 +28,17 @@ func CreateZone(log *slog.Logger, zoneSaver ZoneSaver) http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var featureCollectionJSON geojson.FeatureCollectionJSON
 		var responseData ResponseData
 
-		if err := json.NewDecoder(r.Body).Decode(&featureCollectionJSON); err != nil {
+		featureCollectionJSON, err := geojson.NewFeatureCollectionJSON(r.Body)
+		if err != nil {
 			responseData.Error = geojson.SerializationErr.Error()
 			writeResponse(w, http.StatusBadRequest, responseData)
 			return
 		}
 
 		var featureCollection geojson.FeatureCollection
-		if err := featureCollection.FromFeatureCollectionJSON(featureCollectionJSON); err != nil {
+		if err := featureCollection.FromFeatureCollectionJSON(*featureCollectionJSON); err != nil {
 			responseData.Error = err.Error()
 			writeResponse(w, http.StatusBadRequest, responseData)
 			return
@@ -66,34 +65,26 @@ func CreateZone(log *slog.Logger, zoneSaver ZoneSaver) http.HandlerFunc {
 func GetZones(log *slog.Logger, zoneProvider ZoneProvider) http.HandlerFunc {
 	const op = "handlers.GetZones"
 
-	type ResponseData struct {
+	type ErrResponseData struct {
 		Error string `json:"error,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var responseData ResponseData
-
-		w.Header().Set("Content-Type", "application/json")
 
 		zoneIds, err := parseZoneIds(r.URL.Query().Get("ids"), true)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			responseData.Error = err.Error()
-			if err := json.NewEncoder(w).Encode(responseData); err != nil {
-				log.Error("%s: error on encode response: %v", op, err)
-			}
+			responseData := ErrResponseData{Error: err.Error()}
+			writeResponse(w, http.StatusBadRequest, responseData)
+			return
 		}
 
 		zones, err := zoneProvider.GetZonesByIds(r.Context(), zoneIds)
 		if err != nil {
 			log.Error(fmt.Sprintf("%s: %v", op, err))
-			w.WriteHeader(http.StatusInternalServerError)
+			writeResponse(w, http.StatusInternalServerError, nil)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(zones); err != nil {
-			log.Error("%s: error on encode response: %v", op, err)
-		}
+		writeResponse(w, http.StatusOK, zones)
 	}
 }

@@ -2,6 +2,7 @@ package geojson
 
 import (
 	"encoding/json"
+	"io"
 
 	"github.com/twpayne/go-geom"
 )
@@ -54,4 +55,21 @@ func (fg *FeatureGeometryJSON) Decode() (PostgisGeometry, error) {
 
 	}
 	return nil, UnsupportedGeometryTypeErr{fg.Type}
+}
+
+func NewFeatureCollectionJSON(r io.ReadCloser) (*FeatureCollectionJSON, error) {
+	var featureCollection FeatureCollectionJSON
+
+	if err := json.NewDecoder(r).Decode(&featureCollection); err != nil {
+		return nil, err
+	}
+	return &featureCollection, nil
+}
+
+func MustNewFeatureCollectionJSON(r io.ReadCloser) *FeatureCollectionJSON {
+	featureCollection, err := NewFeatureCollectionJSON(r)
+	if err != nil {
+		panic(err)
+	}
+	return featureCollection
 }

@@ -10,7 +10,7 @@ import (
 
 const (
 	createZoneRoute = "/zones"
-	GetZonesRoute   = "/zones"
+	getZonesRoute   = "/zones"
 )
 
 type Router struct {
@@ -32,7 +32,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func (r *Router) ConfigureRouter(zoneSaver ZoneSaver, zoneProvider ZoneProvider) {
 	// Routes
 	r.router.HandleFunc(createZoneRoute, CreateZone(r.log, zoneSaver)).Methods(http.MethodPost)
-	r.router.HandleFunc(GetZonesRoute, GetZones(r.log, zoneProvider)).Methods(http.MethodGet)
+	r.router.HandleFunc(getZonesRoute, GetZones(r.log, zoneProvider)).Methods(http.MethodGet)
 
 	// Middlewares
 	r.router.Use(r.loggingMiddleware)

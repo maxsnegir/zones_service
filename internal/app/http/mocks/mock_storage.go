@@ -74,11 +74,12 @@ func (m *MockZoneProvider) EXPECT() *MockZoneProviderMockRecorder {
 }
 
 // GetZonesByIds mocks base method.
-func (m *MockZoneProvider) GetZonesByIds(ctx context.Context, ids []int) error {
+func (m *MockZoneProvider) GetZonesByIds(ctx context.Context, ids []int) ([]*geojson.ZoneGEOJSON, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetZonesByIds", ctx, ids)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].([]*geojson.ZoneGEOJSON)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetZonesByIds indicates an expected call of GetZonesByIds.

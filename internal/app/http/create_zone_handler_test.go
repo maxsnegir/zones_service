@@ -23,22 +23,6 @@ type expectedResponse struct {
 	Error  string `json:"error,omitempty"`
 }
 
-func TestDbDown(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockStorage := storageMock.NewMockZoneSaver(ctrl)
-	mockStorage.EXPECT().SaveZoneFromFeatureCollection(gomock.Any(), gomock.Any()).Return(0, errors.New("DB DOWN"))
-
-	wr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(polygonGeoJson)))
-	CreateZone(log, mockStorage)(wr, req)
-	response := wr.Result()
-	defer response.Body.Close()
-	CreateZone(log, storage)(wr, req)
-
-	require.Equal(t, response.Header.Get("Content-Type"), "application/json")
-	require.Equal(t, http.StatusInternalServerError, response.StatusCode)
-}
-
 func TestCreateZoneHandlerErr(t *testing.T) {
 	tests := []struct {
 		name               string
@@ -202,4 +186,20 @@ func TestCreateZoneHandler_Ok(t *testing.T) {
 			require.Equal(t, tt.expectedId, count)
 		})
 	}
+}
+
+func TestCreateZoneHandler_DbErr(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockStorage := storageMock.NewMockZoneSaver(ctrl)
+	mockStorage.EXPECT().SaveZoneFromFeatureCollection(gomock.Any(), gomock.Any()).Return(0, errors.New("DB DOWN")).Times(1)
+
+	wr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(polygonGeoJson)))
+	CreateZone(log, mockStorage)(wr, req)
+	response := wr.Result()
+	defer response.Body.Close()
+	CreateZone(log, storage)(wr, req)
+
+	require.Equal(t, response.Header.Get("Content-Type"), "application/json")
+	require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 }
