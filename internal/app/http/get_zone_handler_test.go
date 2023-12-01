@@ -13,10 +13,12 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 
 	storageMock "github.com/maxsnegir/zones_service/internal/app/http/mocks"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	"github.com/maxsnegir/zones_service/internal/service/zone"
 )
 
 func TestGetZonesByIds(t *testing.T) {
@@ -87,6 +89,9 @@ func TestGetZonesByIds(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			zoneService := zone.New(log, storage, storage)
+			r := NewRouter(mux.NewRouter(), zoneService, log)
+
 			wr := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, getZonesRoute, nil)
 			q := req.URL.Query()
@@ -99,7 +104,7 @@ func TestGetZonesByIds(t *testing.T) {
 			q.Add("ids", strings.Join(zoneIds, ","))
 			req.URL.RawQuery = q.Encode()
 
-			GetZones(log, storage)(wr, req)
+			r.GetZones()(wr, req)
 			response := wr.Result()
 			defer response.Body.Close()
 
@@ -170,6 +175,9 @@ func TestGetZonesHandlerErr(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			zoneService := zone.New(log, storage, storage)
+			r := NewRouter(mux.NewRouter(), zoneService, log)
+
 			wr := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, getZonesRoute, nil)
 
@@ -179,7 +187,7 @@ func TestGetZonesHandlerErr(t *testing.T) {
 				req.URL.RawQuery = q.Encode()
 			}
 
-			GetZones(log, storage)(wr, req)
+			r.GetZones()(wr, req)
 			response := wr.Result()
 			defer response.Body.Close()
 
@@ -200,8 +208,12 @@ func TestGetZonesHandlerErr(t *testing.T) {
 
 func TestGetZonesHandler_DbErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockStorage := storageMock.NewMockZoneProvider(ctrl)
-	mockStorage.EXPECT().GetZonesByIds(gomock.Any(), gomock.Any()).Return(nil, errors.New("DB DOWN")).Times(1)
+	mockSaver := storageMock.NewMockZoneSaver(ctrl)
+	mockProvider := storageMock.NewMockZoneProvider(ctrl)
+
+	zoneService := zone.New(log, mockSaver, mockProvider)
+	r := NewRouter(mux.NewRouter(), zoneService, log)
+	mockProvider.EXPECT().GetZonesByIds(gomock.Any(), gomock.Any()).Return(nil, errors.New("DB DOWN")).Times(1)
 
 	wr := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, getZonesRoute, nil)
@@ -209,7 +221,7 @@ func TestGetZonesHandler_DbErr(t *testing.T) {
 	q.Add("ids", "1,2,3,4")
 	req.URL.RawQuery = q.Encode()
 
-	GetZones(log, mockStorage)(wr, req)
+	r.GetZones()(wr, req)
 	response := wr.Result()
 	defer response.Body.Close()
 

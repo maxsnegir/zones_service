@@ -10,12 +10,14 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	storageMock "github.com/maxsnegir/zones_service/internal/app/http/mocks"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
+	"github.com/maxsnegir/zones_service/internal/service/zone"
 )
 
 type expectedResponse struct {
@@ -106,10 +108,12 @@ func TestCreateZoneHandlerErr(t *testing.T) {
 	defer storage.CleanDB(ctx)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			zoneService := zone.New(log, storage, storage)
+			r := NewRouter(mux.NewRouter(), zoneService, log)
+
 			wr := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(tt.data)))
-
-			CreateZone(log, storage)(wr, req)
+			r.CreateZone()(wr, req)
 			response := wr.Result()
 			defer response.Body.Close()
 
@@ -152,10 +156,12 @@ func TestCreateZoneHandler_Ok(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			zoneService := zone.New(log, storage, storage)
+			r := NewRouter(mux.NewRouter(), zoneService, log)
+
 			wr := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(tt.geoJson)))
-
-			CreateZone(log, storage)(wr, req)
+			r.CreateZone()(wr, req)
 			response := wr.Result()
 			defer response.Body.Close()
 
@@ -190,15 +196,18 @@ func TestCreateZoneHandler_Ok(t *testing.T) {
 
 func TestCreateZoneHandler_DbErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockStorage := storageMock.NewMockZoneSaver(ctrl)
-	mockStorage.EXPECT().SaveZoneFromFeatureCollection(gomock.Any(), gomock.Any()).Return(0, errors.New("DB DOWN")).Times(1)
+	mockSaver := storageMock.NewMockZoneSaver(ctrl)
+	mockProvider := storageMock.NewMockZoneProvider(ctrl)
+	mockSaver.EXPECT().SaveZoneFromFeatureCollection(gomock.Any(), gomock.Any()).Return(0, errors.New("DB DOWN")).Times(1)
+
+	zoneService := zone.New(log, mockSaver, mockProvider)
+	r := NewRouter(mux.NewRouter(), zoneService, log)
 
 	wr := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(polygonGeoJson)))
-	CreateZone(log, mockStorage)(wr, req)
+	r.CreateZone()(wr, req)
 	response := wr.Result()
 	defer response.Body.Close()
-	CreateZone(log, storage)(wr, req)
 
 	require.Equal(t, response.Header.Get("Content-Type"), "application/json")
 	require.Equal(t, http.StatusInternalServerError, response.StatusCode)

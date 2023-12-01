@@ -12,6 +12,7 @@ import (
 	"github.com/maxsnegir/zones_service/internal/config"
 	"github.com/maxsnegir/zones_service/internal/logger"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
+	"github.com/maxsnegir/zones_service/internal/service/zone"
 
 	httpserver "github.com/maxsnegir/zones_service/internal/app/http"
 )
@@ -27,8 +28,9 @@ func main() {
 		panic(err)
 	}
 
-	appRouter := httpserver.NewRouter(mux.NewRouter(), log)
-	appRouter.ConfigureRouter(storage, storage)
+	zoneService := zone.New(log, storage, storage)
+	appRouter := httpserver.NewRouter(mux.NewRouter(), zoneService, log)
+	appRouter.ConfigureRouter()
 
 	app := httpserver.New(appRouter, cfg.Server.Host, cfg.Server.Port, log)
 
@@ -40,6 +42,5 @@ func main() {
 
 	<-stop
 	app.Stop()
-	storage.ShutDown()
 	log.Info("Gracefully stopped")
 }
