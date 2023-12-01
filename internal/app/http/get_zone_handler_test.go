@@ -16,6 +16,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	storageMock "github.com/maxsnegir/zones_service/internal/repository/mocks"
 	"github.com/maxsnegir/zones_service/internal/service/zone"
@@ -35,8 +36,8 @@ func TestGetZonesByIds(t *testing.T) {
 	require.Equal(t, 2, zonesCnt)
 
 	type expectedResponse struct {
-		ZoneId  int                            `json:"id"`
-		GeoJSON *geojson.FeatureCollectionJSON `json:"geojson"`
+		ZoneId  int                        `json:"id"`
+		GeoJSON *dto.FeatureCollectionJSON `json:"geojson"`
 	}
 
 	defer storage.CleanDB(ctx)
@@ -52,7 +53,7 @@ func TestGetZonesByIds(t *testing.T) {
 			expectedResponse: []expectedResponse{
 				{
 					ZoneId:  polygonId,
-					GeoJSON: geojson.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(polygonGeoJson))),
+					GeoJSON: dto.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(polygonGeoJson))),
 				},
 			},
 		},
@@ -62,7 +63,7 @@ func TestGetZonesByIds(t *testing.T) {
 			expectedResponse: []expectedResponse{
 				{
 					ZoneId:  multiPolygonId,
-					GeoJSON: geojson.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(multiPolygonGeoJson))),
+					GeoJSON: dto.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(multiPolygonGeoJson))),
 				},
 			},
 		},
@@ -72,11 +73,11 @@ func TestGetZonesByIds(t *testing.T) {
 			expectedResponse: []expectedResponse{
 				{
 					ZoneId:  polygonId,
-					GeoJSON: geojson.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(polygonGeoJson))),
+					GeoJSON: dto.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(polygonGeoJson))),
 				},
 				{
 					ZoneId:  multiPolygonId,
-					GeoJSON: geojson.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(multiPolygonGeoJson))),
+					GeoJSON: dto.MustNewFeatureCollectionJSON(io.NopCloser(bytes.NewBufferString(multiPolygonGeoJson))),
 				},
 			},
 		},

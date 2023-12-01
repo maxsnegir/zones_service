@@ -6,6 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/twpayne/go-geom"
+
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 )
 
 func TestFeatureCollection_FromFeatureCollectionJSON_Ok(t *testing.T) {
@@ -16,12 +18,12 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Ok(t *testing.T) {
         [[[37.829325,55.696803],[37.830308,55.687199],[37.85839,55.67523],[37.829325,55.696803]]]
     ]`)
 
-	featureCollectionJSON := FeatureCollectionJSON{
+	featureCollectionJSON := dto.FeatureCollectionJSON{
 		Type: "FeatureCollection",
-		Features: []FeatureJSON{
+		Features: []dto.FeatureJSON{
 			{
 				Type: "Feature",
-				Geometry: FeatureGeometryJSON{
+				Geometry: dto.FeatureGeometryJSON{
 					Type:        "Polygon",
 					Coordinates: &polygonCoords,
 				},
@@ -31,7 +33,7 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Ok(t *testing.T) {
 			},
 			{
 				Type: "Feature",
-				Geometry: FeatureGeometryJSON{
+				Geometry: dto.FeatureGeometryJSON{
 					Type:        "MultiPolygon",
 					Coordinates: &multiPolygonCoords,
 				},
@@ -95,32 +97,32 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Err(t *testing.T) {
 	wrongCoords := json.RawMessage(`[]`)
 	tests := []struct {
 		name        string
-		featureCol  FeatureCollectionJSON
+		featureCol  dto.FeatureCollectionJSON
 		expectedErr error
 	}{
 		{
 			name:        "wrong feature collection type",
-			featureCol:  FeatureCollectionJSON{Type: "NotFeatureCollection"},
+			featureCol:  dto.FeatureCollectionJSON{Type: "NotFeatureCollection"},
 			expectedErr: NotValidFeatureCollectionType{"NotFeatureCollection"},
 		},
 		{
 			name:        "features not passed",
-			featureCol:  FeatureCollectionJSON{Type: "FeatureCollection"},
+			featureCol:  dto.FeatureCollectionJSON{Type: "FeatureCollection"},
 			expectedErr: FeaturesIsRequiredErr,
 		},
 		{
 			name:        "empty feature",
-			featureCol:  FeatureCollectionJSON{Type: "FeatureCollection", Features: []FeatureJSON{}},
+			featureCol:  dto.FeatureCollectionJSON{Type: "FeatureCollection", Features: []dto.FeatureJSON{}},
 			expectedErr: FeaturesIsRequiredErr,
 		},
 		{
 			name: "empty geometry type",
-			featureCol: FeatureCollectionJSON{
+			featureCol: dto.FeatureCollectionJSON{
 				Type: "FeatureCollection",
-				Features: []FeatureJSON{
+				Features: []dto.FeatureJSON{
 					{
 						Type:     "Feature",
-						Geometry: FeatureGeometryJSON{Type: ""},
+						Geometry: dto.FeatureGeometryJSON{Type: ""},
 					},
 				},
 			},
@@ -128,12 +130,12 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Err(t *testing.T) {
 		},
 		{
 			name: "coordinates not passed",
-			featureCol: FeatureCollectionJSON{
+			featureCol: dto.FeatureCollectionJSON{
 				Type: "FeatureCollection",
-				Features: []FeatureJSON{
+				Features: []dto.FeatureJSON{
 					{
 						Type:     "Feature",
-						Geometry: FeatureGeometryJSON{Type: "Polygon"},
+						Geometry: dto.FeatureGeometryJSON{Type: "Polygon"},
 					},
 				},
 			},
@@ -141,12 +143,12 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Err(t *testing.T) {
 		},
 		{
 			name: "not valid geometry type",
-			featureCol: FeatureCollectionJSON{
+			featureCol: dto.FeatureCollectionJSON{
 				Type: "FeatureCollection",
-				Features: []FeatureJSON{
+				Features: []dto.FeatureJSON{
 					{
 						Type: "Feature",
-						Geometry: FeatureGeometryJSON{
+						Geometry: dto.FeatureGeometryJSON{
 							Type:        "NotPolygon",
 							Coordinates: &json.RawMessage{},
 						},
@@ -157,12 +159,12 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Err(t *testing.T) {
 		},
 		{
 			name: "empty polygon coordinates",
-			featureCol: FeatureCollectionJSON{
+			featureCol: dto.FeatureCollectionJSON{
 				Type: "FeatureCollection",
-				Features: []FeatureJSON{
+				Features: []dto.FeatureJSON{
 					{
 						Type: "Feature",
-						Geometry: FeatureGeometryJSON{
+						Geometry: dto.FeatureGeometryJSON{
 							Type:        "Polygon",
 							Coordinates: &json.RawMessage{},
 						},
@@ -173,12 +175,12 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Err(t *testing.T) {
 		},
 		{
 			name: "not valid polygon coordinates",
-			featureCol: FeatureCollectionJSON{
+			featureCol: dto.FeatureCollectionJSON{
 				Type: "FeatureCollection",
-				Features: []FeatureJSON{
+				Features: []dto.FeatureJSON{
 					{
 						Type: "Feature",
-						Geometry: FeatureGeometryJSON{
+						Geometry: dto.FeatureGeometryJSON{
 							Type:        "Polygon",
 							Coordinates: &wrongCoords,
 						},
@@ -189,12 +191,12 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Err(t *testing.T) {
 		},
 		{
 			name: "empty multipolygon coordinates",
-			featureCol: FeatureCollectionJSON{
+			featureCol: dto.FeatureCollectionJSON{
 				Type: "FeatureCollection",
-				Features: []FeatureJSON{
+				Features: []dto.FeatureJSON{
 					{
 						Type: "Feature",
-						Geometry: FeatureGeometryJSON{
+						Geometry: dto.FeatureGeometryJSON{
 							Type:        "MultiPolygon",
 							Coordinates: &json.RawMessage{},
 						},
@@ -205,12 +207,12 @@ func TestFeatureCollection_FromFeatureCollectionJSON_Err(t *testing.T) {
 		},
 		{
 			name: "not valid multipolygon coordinates",
-			featureCol: FeatureCollectionJSON{
+			featureCol: dto.FeatureCollectionJSON{
 				Type: "FeatureCollection",
-				Features: []FeatureJSON{
+				Features: []dto.FeatureJSON{
 					{
 						Type: "Feature",
-						Geometry: FeatureGeometryJSON{
+						Geometry: dto.FeatureGeometryJSON{
 							Type:        "MultiPolygon",
 							Coordinates: &wrongCoords,
 						},

@@ -9,6 +9,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	geojson "github.com/maxsnegir/zones_service/internal/domain/geojson"
 )
 
@@ -74,10 +76,10 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 }
 
 // GetZonesByIds mocks base method.
-func (m *MockProvider) GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneGEOJSON, error) {
+func (m *MockProvider) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetZonesByIds", ctx, ids)
-	ret0, _ := ret[0].([]geojson.ZoneGEOJSON)
+	ret0, _ := ret[0].([]dto.ZoneGeoJSON)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

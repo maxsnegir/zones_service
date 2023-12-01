@@ -13,6 +13,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/maxsnegir/zones_service/internal/config"
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	"github.com/maxsnegir/zones_service/internal/logger"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
@@ -38,7 +39,7 @@ func TestMain(m *testing.M) {
 
 func createZoneFixture(ctx context.Context, data string) (int, error) {
 	var zoneId int
-	var featureCollectionJson geojson.FeatureCollectionJSON
+	var featureCollectionJson dto.FeatureCollectionJSON
 
 	if err := json.NewDecoder(bytes.NewBuffer([]byte(data))).Decode(&featureCollectionJson); err != nil {
 		return zoneId, err

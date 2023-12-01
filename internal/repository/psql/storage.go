@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	pg "github.com/lib/pq"
 
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 )
 
@@ -73,7 +74,7 @@ func (s *Storage) SaveZoneFromFeatureCollection(ctx context.Context, featureColl
 	return zoneId, nil
 }
 
-func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneGEOJSON, error) {
+func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error) {
 	const query = `
 		SELECT zg.zone_id,
 			   jsonb_build_object(
@@ -95,9 +96,9 @@ func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneG
 		return nil, fmt.Errorf("failed to get zones: %w", err)
 	}
 
-	result := make([]geojson.ZoneGEOJSON, 0, len(ids))
+	result := make([]dto.ZoneGeoJSON, 0, len(ids))
 	for rows.Next() {
-		var zoneGeoJson geojson.ZoneGEOJSON
+		var zoneGeoJson dto.ZoneGeoJSON
 		err = rows.Scan(&zoneGeoJson.ZoneId, &zoneGeoJson.GeoJSON)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan zone: %w", err)

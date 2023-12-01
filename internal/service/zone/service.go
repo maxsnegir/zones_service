@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 )
 
@@ -12,7 +13,7 @@ type Saver interface {
 }
 
 type Provider interface {
-	GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneGEOJSON, error)
+	GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error)
 }
 
 type Service struct {
@@ -36,6 +37,6 @@ func (s *Service) SaveZoneFromFeatureCollection(
 	return s.zoneSaver.SaveZoneFromFeatureCollection(ctx, featureCollection)
 }
 
-func (s *Service) GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneGEOJSON, error) {
+func (s *Service) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error) {
 	return s.zoneProvider.GetZonesByIds(ctx, ids)
 }

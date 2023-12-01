@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	storageMock "github.com/maxsnegir/zones_service/internal/repository/mocks"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
@@ -181,7 +182,7 @@ func TestCreateZoneHandler_Ok(t *testing.T) {
 			require.Equal(t, len(zones), 1)
 			require.Equal(t, zones[0].ZoneId, tt.expectedId)
 
-			var geoJsonFromDb geojson.FeatureCollectionJSON
+			var geoJsonFromDb dto.FeatureCollectionJSON
 			if err = json.Unmarshal([]byte(tt.geoJson), &geoJsonFromDb); err != nil {
 				t.Fatal(err)
 			}

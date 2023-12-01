@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
 )
@@ -20,7 +21,7 @@ func (r *Router) CreateZone() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		var responseData ResponseData
 
-		featureCollectionJSON, err := geojson.NewFeatureCollectionJSON(req.Body)
+		featureCollectionJSON, err := dto.NewFeatureCollectionJSON(req.Body)
 		if err != nil {
 			responseData.Error = geojson.SerializationErr.Error()
 			r.JsonResponse(w, http.StatusBadRequest, responseData)
