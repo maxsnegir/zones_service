@@ -12,7 +12,7 @@ type Saver interface {
 }
 
 type Provider interface {
-	GetZonesByIds(ctx context.Context, ids []int) ([]*geojson.ZoneGEOJSON, error)
+	GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneGEOJSON, error)
 }
 
 type Service struct {
@@ -36,6 +36,6 @@ func (s *Service) SaveZoneFromFeatureCollection(
 	return s.zoneSaver.SaveZoneFromFeatureCollection(ctx, featureCollection)
 }
 
-func (s *Service) GetZonesByIds(ctx context.Context, ids []int) ([]*geojson.ZoneGEOJSON, error) {
+func (s *Service) GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneGEOJSON, error) {
 	return s.zoneProvider.GetZonesByIds(ctx, ids)
 }

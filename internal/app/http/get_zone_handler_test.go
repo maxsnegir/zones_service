@@ -16,8 +16,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 
-	storageMock "github.com/maxsnegir/zones_service/internal/app/http/mocks"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	storageMock "github.com/maxsnegir/zones_service/internal/repository/mocks"
 	"github.com/maxsnegir/zones_service/internal/service/zone"
 )
 
@@ -208,8 +208,8 @@ func TestGetZonesHandlerErr(t *testing.T) {
 
 func TestGetZonesHandler_DbErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockSaver := storageMock.NewMockZoneSaver(ctrl)
-	mockProvider := storageMock.NewMockZoneProvider(ctrl)
+	mockSaver := storageMock.NewMockSaver(ctrl)
+	mockProvider := storageMock.NewMockProvider(ctrl)
 
 	zoneService := zone.New(log, mockSaver, mockProvider)
 	r := NewRouter(mux.NewRouter(), zoneService, log)

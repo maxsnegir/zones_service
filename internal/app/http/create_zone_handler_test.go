@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	storageMock "github.com/maxsnegir/zones_service/internal/app/http/mocks"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	storageMock "github.com/maxsnegir/zones_service/internal/repository/mocks"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
 	"github.com/maxsnegir/zones_service/internal/service/zone"
 )
@@ -196,8 +196,8 @@ func TestCreateZoneHandler_Ok(t *testing.T) {
 
 func TestCreateZoneHandler_DbErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockSaver := storageMock.NewMockZoneSaver(ctrl)
-	mockProvider := storageMock.NewMockZoneProvider(ctrl)
+	mockSaver := storageMock.NewMockSaver(ctrl)
+	mockProvider := storageMock.NewMockProvider(ctrl)
 	mockSaver.EXPECT().SaveZoneFromFeatureCollection(gomock.Any(), gomock.Any()).Return(0, errors.New("DB DOWN")).Times(1)
 
 	zoneService := zone.New(log, mockSaver, mockProvider)

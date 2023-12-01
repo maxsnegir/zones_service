@@ -33,6 +33,6 @@ test:
 
 .PHONY: gen
 gen:
-	mockgen -source=internal/app/http/handlers.go \
-	-destination=internal/app/http/mocks/mock_storage.go
+	mockgen -source=internal/service/zone/service.go \
+	-destination=internal/repository/mocks/mock_storage.go
 

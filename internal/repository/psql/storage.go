@@ -73,7 +73,7 @@ func (s *Storage) SaveZoneFromFeatureCollection(ctx context.Context, featureColl
 	return zoneId, nil
 }
 
-func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]*geojson.ZoneGEOJSON, error) {
+func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]geojson.ZoneGEOJSON, error) {
 	const query = `
 		SELECT zg.zone_id,
 			   jsonb_build_object(
@@ -95,14 +95,14 @@ func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]*geojson.Zone
 		return nil, fmt.Errorf("failed to get zones: %w", err)
 	}
 
-	result := make([]*geojson.ZoneGEOJSON, 0, len(ids))
+	result := make([]geojson.ZoneGEOJSON, 0, len(ids))
 	for rows.Next() {
 		var zoneGeoJson geojson.ZoneGEOJSON
 		err = rows.Scan(&zoneGeoJson.ZoneId, &zoneGeoJson.GeoJSON)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan zone: %w", err)
 		}
-		result = append(result, &zoneGeoJson)
+		result = append(result, zoneGeoJson)
 	}
 	return result, nil
 }
