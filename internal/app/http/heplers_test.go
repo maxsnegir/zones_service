@@ -44,6 +44,12 @@ func Test_parseZoneIds(t *testing.T) {
 			wantErr:     true,
 			expectedErr: ErrInvalidZoneId,
 		},
+		{
+			name:        "duplicate ids",
+			zoneIdsStr:  "4,4,3,3,1,1,1,2,2,10",
+			wantErr:     false,
+			expectedIds: []int{1, 2, 3, 4, 10},
+		},
 	}
 
 	for _, tt := range tests {
@@ -54,7 +60,8 @@ func Test_parseZoneIds(t *testing.T) {
 				require.ErrorIs(t, err, tt.expectedErr)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, tt.expectedIds, gotIds)
+				require.Equal(t, len(tt.expectedIds), len(gotIds))
+				require.ElementsMatch(t, tt.expectedIds, gotIds)
 			}
 		})
 	}
