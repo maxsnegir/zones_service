@@ -2,7 +2,6 @@ package http
 
 import (
 	"fmt"
-	"log/slog"
 	"net/http"
 	"time"
 
@@ -44,11 +43,11 @@ func (a *App) Run() error {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	a.log.Info("Starting HTTP server", slog.String("addr", fmt.Sprintf("http://%s:%d", a.host, a.port)))
+	a.log.Infof("Starting HTTP server: http://%s:%d", a.host, a.port)
 	err := srv.ListenAndServe()
 	return fmt.Errorf("%s: %w", op, err)
 }
 
 func (a *App) Stop() {
-	a.log.Info("Gracefully stopped")
+	a.log.Info("Stopping HTTP server")
 }

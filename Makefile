@@ -1,6 +1,14 @@
 MIGRATOR_NAME?=migrator
 
 
+.PHONY: build
+build:
+	go build -v -o bin/ ./cmd/zone/
+
+.PHONY: run
+run: build
+	./bin/zone
+
 .PHONY: make-migrations
 make-migrations:
 	migrate create -ext sql -dir migrations -seq $(NAME)

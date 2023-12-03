@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,11 +20,11 @@ func main() {
 	ctx := context.Background()
 	cfg := config.MustLoad()
 	log := logger.New(cfg.Env)
-	log.Debug("config: ", slog.Any("config", cfg))
+	log.Debugf("config: %+v", cfg)
 
 	storage, err := psql.New(ctx, log, cfg.Storage.DSN)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	zoneService := zone.New(log, storage, storage)

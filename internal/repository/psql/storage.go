@@ -4,7 +4,6 @@ import (
 	"context"
 	baseErr "errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
@@ -27,6 +26,9 @@ func New(ctx context.Context, log *logrus.Logger, DbConnString string) (*Storage
 	if err != nil {
 		return nil, fmt.Errorf("%s:failed to connect to database: %w", op, err)
 	}
+	if err = pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("%s:failed to ping database: %w", op, err)
+	}
 	return &Storage{
 		db:  pool,
 		log: log,
@@ -34,10 +36,8 @@ func New(ctx context.Context, log *logrus.Logger, DbConnString string) (*Storage
 }
 
 func (s *Storage) ShutDown() {
-	const op = "storage.ShutDown"
-
 	s.db.Close()
-	s.log.Info(op, slog.String("op", op))
+	s.log.Info("Storage shutdown")
 }
 
 func (s *Storage) SaveZoneFromFeatureCollection(ctx context.Context, featureCollection geojson.FeatureCollection) (int, error) {
