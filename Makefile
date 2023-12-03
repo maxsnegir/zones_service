@@ -30,6 +30,10 @@ cover:
 test:
 	go test -v ./...
 
+.PHONY: test-race
+test-race:
+	go test ./... -v -race
+
 
 .PHONY: gen
 gen:
