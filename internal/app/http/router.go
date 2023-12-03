@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	createZoneRoute = "/zones"
-	getZonesRoute   = "/zones"
+	createZoneRoute   = "/zones"
+	getZonesRoute     = "/zones"
+	zonesContainsPost = "/contains"
 )
 
 type Router struct {
@@ -38,6 +39,7 @@ func (r *Router) ConfigureRouter() {
 	// Routes
 	r.router.HandleFunc(createZoneRoute, r.CreateZone()).Methods(http.MethodPost)
 	r.router.HandleFunc(getZonesRoute, r.GetZones()).Methods(http.MethodGet)
+	r.router.HandleFunc(zonesContainsPost, r.ZonesContainsPoint()).Methods(http.MethodPost)
 
 	// Middlewares
 	r.router.Use(r.loggingMiddleware)

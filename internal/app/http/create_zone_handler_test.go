@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	"github.com/maxsnegir/zones_service/internal/dto"
 	storageMock "github.com/maxsnegir/zones_service/internal/repository/mocks"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
 	"github.com/maxsnegir/zones_service/internal/service/zone"

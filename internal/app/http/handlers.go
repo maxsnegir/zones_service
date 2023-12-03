@@ -1,12 +1,13 @@
 package http
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	"github.com/maxsnegir/zones_service/internal/dto"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
 )
 
@@ -77,5 +78,37 @@ func (r *Router) GetZones() http.HandlerFunc {
 		}
 
 		r.JsonResponse(w, http.StatusOK, zones)
+	}
+}
+
+func (r *Router) ZonesContainsPoint() http.HandlerFunc {
+	const op = "handlers.ZonesContainsPoint"
+
+	type ErrResponseData struct {
+		Error string `json:"error,omitempty"`
+	}
+
+	return func(w http.ResponseWriter, req *http.Request) {
+		var requestData dto.ZoneContainsPointIn
+
+		if err := json.NewDecoder(req.Body).Decode(&requestData); err != nil {
+			response := ErrResponseData{Error: geojson.SerializationErr.Error()}
+			r.JsonResponse(w, http.StatusBadRequest, response)
+			return
+		}
+		if err := requestData.Validate(); err != nil {
+			response := ErrResponseData{Error: err.Error()}
+			r.JsonResponse(w, http.StatusBadRequest, response)
+			return
+		}
+
+		result, err := r.ZoneService.ContainsPoint(req.Context(), requestData)
+		if err != nil {
+			r.log.Error(fmt.Sprintf("%s: %v", op, err))
+			r.JsonResponse(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		r.JsonResponse(w, http.StatusOK, result)
 	}
 }

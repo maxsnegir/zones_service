@@ -5,7 +5,7 @@ import (
 
 	"github.com/twpayne/go-geom"
 
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
+	"github.com/maxsnegir/zones_service/internal/dto"
 )
 
 type FeatureCollection struct {

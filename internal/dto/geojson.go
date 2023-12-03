@@ -5,6 +5,11 @@ import (
 	"io"
 )
 
+type ZoneGeoJSON struct {
+	ZoneId  int                   `json:"id"`
+	GeoJSON FeatureCollectionJSON `json:"geojson"`
+}
+
 type FeatureCollectionJSON struct {
 	Type     string        `json:"type"`
 	Features []FeatureJSON `json:"features"`

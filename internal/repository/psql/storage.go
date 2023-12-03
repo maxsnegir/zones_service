@@ -8,10 +8,10 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	pg "github.com/lib/pq"
+	"github.com/lib/pq"
 
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	"github.com/maxsnegir/zones_service/internal/dto"
 )
 
 type Storage struct {
@@ -26,9 +26,6 @@ func New(ctx context.Context, log *slog.Logger, DbConnString string) (*Storage, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
-	log = log.With(slog.String("op", op))
-	log.Info("Connected to database")
-
 	return &Storage{
 		db:  pool,
 		log: log,
@@ -36,7 +33,10 @@ func New(ctx context.Context, log *slog.Logger, DbConnString string) (*Storage, 
 }
 
 func (s *Storage) ShutDown() {
+	const op = "storage.ShutDown"
+
 	s.db.Close()
+	s.log.Info(op, slog.String("op", op))
 }
 
 func (s *Storage) SaveZoneFromFeatureCollection(ctx context.Context, featureCollection geojson.FeatureCollection) (int, error) {
@@ -91,11 +91,11 @@ func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJS
 		WHERE zg.zone_id = any($1)
 		GROUP BY zg.zone_id;`
 
-	rows, err := s.db.Query(ctx, query, pg.Array(ids))
+	rows, err := s.db.Query(ctx, query, pq.Array(ids))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get zones: %w", err)
 	}
-
+	defer rows.Close()
 	result := make([]dto.ZoneGeoJSON, 0, len(ids))
 	for rows.Next() {
 		var zoneGeoJson dto.ZoneGeoJSON
@@ -115,5 +115,34 @@ func (s *Storage) GetZonesCount(ctx context.Context) (int, error) {
 	if err != nil {
 		return count, fmt.Errorf("failed to get zones count: %w", err)
 	}
+
 	return count, nil
+}
+
+func (s *Storage) ContainsPoint(ctx context.Context, ids []int, point dto.Point) ([]dto.ZoneContainsPointOut, error) {
+	const op = "storage.ZonesContainsPoint"
+	const query = `
+		SELECT zg.zone_id,
+			   st_contains(zg.geom, st_point($1, $2)) as res
+		FROM zone_geometry zg
+		WHERE zone_id = any($3)
+		GROUP BY zg.zone_id, res;`
+
+	rows, err := s.db.Query(ctx, query, point.Lon, point.Lat, pq.Array(ids))
+	if err != nil {
+		return nil, fmt.Errorf("%s: failed to check contains point: %w", op, err)
+	}
+	defer rows.Close()
+
+	result := make([]dto.ZoneContainsPointOut, 0, len(ids))
+	for rows.Next() {
+		var zoneContainsPointOut dto.ZoneContainsPointOut
+		err = rows.Scan(&zoneContainsPointOut.ZoneId, &zoneContainsPointOut.Contains)
+		if err != nil {
+			return nil, fmt.Errorf("%s: failed to scan zone: %w", op, err)
+		}
+		result = append(result, zoneContainsPointOut)
+	}
+
+	return result, nil
 }

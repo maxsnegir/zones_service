@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/twpayne/go-geom"
 
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
+	"github.com/maxsnegir/zones_service/internal/dto"
 )
 
 func TestFeatureCollection_FromFeatureCollectionJSON_Ok(t *testing.T) {

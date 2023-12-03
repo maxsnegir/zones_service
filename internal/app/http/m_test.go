@@ -13,8 +13,8 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/maxsnegir/zones_service/internal/config"
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	"github.com/maxsnegir/zones_service/internal/dto"
 	"github.com/maxsnegir/zones_service/internal/logger"
 	"github.com/maxsnegir/zones_service/internal/repository/psql"
 )

@@ -31,7 +31,6 @@ func main() {
 	zoneService := zone.New(log, storage, storage)
 	appRouter := httpserver.NewRouter(mux.NewRouter(), zoneService, log)
 	appRouter.ConfigureRouter()
-
 	app := httpserver.New(appRouter, cfg.Server.Host, cfg.Server.Port, log)
 
 	go app.MustRun()
@@ -42,5 +41,6 @@ func main() {
 
 	<-stop
 	app.Stop()
+	storage.ShutDown()
 	log.Info("Gracefully stopped")
 }

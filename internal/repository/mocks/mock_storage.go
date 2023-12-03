@@ -9,9 +9,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	geojson "github.com/maxsnegir/zones_service/internal/domain/geojson"
+	dto "github.com/maxsnegir/zones_service/internal/dto"
 )
 
 // MockSaver is a mock of Saver interface.
@@ -75,6 +74,21 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 	return m.recorder
 }
 
+// ContainsPoint mocks base method.
+func (m *MockProvider) ContainsPoint(ctx context.Context, ids []int, point dto.Point) ([]dto.ZoneContainsPointOut, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ContainsPoint", ctx, ids, point)
+	ret0, _ := ret[0].([]dto.ZoneContainsPointOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ContainsPoint indicates an expected call of ContainsPoint.
+func (mr *MockProviderMockRecorder) ContainsPoint(ctx, ids, point interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainsPoint", reflect.TypeOf((*MockProvider)(nil).ContainsPoint), ctx, ids, point)
+}
+
 // GetZonesByIds mocks base method.
 func (m *MockProvider) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error) {
 	m.ctrl.T.Helper()
@@ -88,4 +102,19 @@ func (m *MockProvider) GetZonesByIds(ctx context.Context, ids []int) ([]dto.Zone
 func (mr *MockProviderMockRecorder) GetZonesByIds(ctx, ids interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZonesByIds", reflect.TypeOf((*MockProvider)(nil).GetZonesByIds), ctx, ids)
+}
+
+// GetZonesCount mocks base method.
+func (m *MockProvider) GetZonesCount(ctx context.Context) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetZonesCount", ctx)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetZonesCount indicates an expected call of GetZonesCount.
+func (mr *MockProviderMockRecorder) GetZonesCount(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZonesCount", reflect.TypeOf((*MockProvider)(nil).GetZonesCount), ctx)
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/maxsnegir/zones_service/internal/domain/dto"
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
+	"github.com/maxsnegir/zones_service/internal/dto"
 )
 
 type Saver interface {
@@ -14,6 +14,9 @@ type Saver interface {
 
 type Provider interface {
 	GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error)
+	ContainsPoint(ctx context.Context, ids []int, point dto.Point) ([]dto.ZoneContainsPointOut, error)
+
+	GetZonesCount(ctx context.Context) (int, error)
 }
 
 type Service struct {
@@ -39,4 +42,8 @@ func (s *Service) SaveZoneFromFeatureCollection(
 
 func (s *Service) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error) {
 	return s.zoneProvider.GetZonesByIds(ctx, ids)
+}
+
+func (s *Service) ContainsPoint(ctx context.Context, data dto.ZoneContainsPointIn) ([]dto.ZoneContainsPointOut, error) {
+	return s.zoneProvider.ContainsPoint(ctx, data.ZoneIds, data.Point)
 }
