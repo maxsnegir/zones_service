@@ -128,10 +128,10 @@ func (s *Storage) ContainsPoint(ctx context.Context, ids []int, point dto.Point)
 	const op = "storage.ZonesContainsPoint"
 	const query = `
 		SELECT zg.zone_id,
-			   st_contains(zg.geom, st_point($1, $2)) as res
+			   bool_or(st_contains(zg.geom, st_point($1, $2))) as res
 		FROM zone_geometry zg
 		WHERE zone_id = any($3)
-		GROUP BY zg.zone_id, res;`
+		GROUP BY zg.zone_id;`
 
 	zoneIds := &pgtype.Int4Array{}
 	if err := zoneIds.Set(ids); err != nil {

@@ -107,7 +107,7 @@ func TestGetZonesByIds(t *testing.T) {
 
 			r.GetZones()(wr, req)
 			response := wr.Result()
-			defer response.Body.Close()
+			defer func() { require.NoError(t, response.Body.Close()) }()
 
 			require.Equal(t, response.Header.Get("Content-Type"), "application/json")
 			require.Equal(t, http.StatusOK, response.StatusCode)
@@ -190,7 +190,7 @@ func TestGetZonesHandlerErr(t *testing.T) {
 
 			r.GetZones()(wr, req)
 			response := wr.Result()
-			defer response.Body.Close()
+			defer func() { require.NoError(t, response.Body.Close()) }()
 
 			require.Equal(t, response.Header.Get("Content-Type"), "application/json")
 			require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -224,7 +224,7 @@ func TestGetZonesHandler_DbErr(t *testing.T) {
 
 	r.GetZones()(wr, req)
 	response := wr.Result()
-	defer response.Body.Close()
+	defer func() { require.NoError(t, response.Body.Close()) }()
 
 	require.Equal(t, response.Header.Get("Content-Type"), "application/json")
 	require.Equal(t, http.StatusInternalServerError, response.StatusCode)

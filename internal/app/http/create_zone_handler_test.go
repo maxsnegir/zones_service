@@ -116,7 +116,7 @@ func TestCreateZoneHandlerErr(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(tt.data)))
 			r.CreateZone()(wr, req)
 			response := wr.Result()
-			defer response.Body.Close()
+			defer func() { require.NoError(t, response.Body.Close()) }()
 
 			var data expectedResponse
 			if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
@@ -164,7 +164,7 @@ func TestCreateZoneHandler_Ok(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(tt.geoJson)))
 			r.CreateZone()(wr, req)
 			response := wr.Result()
-			defer response.Body.Close()
+			defer func() { require.NoError(t, response.Body.Close()) }()
 
 			require.Equal(t, http.StatusCreated, response.StatusCode)
 			require.Equal(t, response.Header.Get("Content-Type"), "application/json")
@@ -208,7 +208,7 @@ func TestCreateZoneHandler_DbErr(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, createZoneRoute, bytes.NewBuffer([]byte(polygonGeoJson)))
 	r.CreateZone()(wr, req)
 	response := wr.Result()
-	defer response.Body.Close()
+	defer func() { require.NoError(t, response.Body.Close()) }()
 
 	require.Equal(t, response.Header.Get("Content-Type"), "application/json")
 	require.Equal(t, http.StatusInternalServerError, response.StatusCode)
