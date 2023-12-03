@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/sirupsen/logrus"
 
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	"github.com/maxsnegir/zones_service/internal/dto"
@@ -16,10 +17,10 @@ import (
 
 type Storage struct {
 	db  *pgxpool.Pool
-	log *slog.Logger
+	log *logrus.Logger
 }
 
-func New(ctx context.Context, log *slog.Logger, DbConnString string) (*Storage, error) {
+func New(ctx context.Context, log *logrus.Logger, DbConnString string) (*Storage, error) {
 	const op = "postgres.New"
 
 	pool, err := pgxpool.Connect(ctx, DbConnString)

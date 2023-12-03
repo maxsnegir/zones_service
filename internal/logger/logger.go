@@ -1,37 +1,42 @@
 package logger
 
 import (
-	"log/slog"
 	"os"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/maxsnegir/zones_service/internal/config"
 )
 
-func New(env string) *slog.Logger {
-	var log *slog.Logger
-
+func New(env string) *logrus.Logger {
 	switch env {
-	case config.EnvLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case config.EnvTest:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+	case config.EnvLocal, config.EnvTest:
+		return &logrus.Logger{
+			Out:       os.Stdout,
+			Formatter: &logrus.TextFormatter{FullTimestamp: true, TimestampFormat: "2006-01-02 15:04:05"},
+			Hooks:     make(logrus.LevelHooks),
+			Level:     logrus.DebugLevel,
+		}
 	case config.EnvDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		return &logrus.Logger{
+			Out:       os.Stdout,
+			Formatter: &logrus.TextFormatter{FullTimestamp: true, TimestampFormat: "2006-01-02 15:04:05"},
+			Hooks:     make(logrus.LevelHooks),
+			Level:     logrus.InfoLevel,
+		}
 	case config.EnvProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
+		return &logrus.Logger{
+			Out:       os.Stdout,
+			Formatter: &logrus.TextFormatter{FullTimestamp: true, TimestampFormat: "2006-01-02 15:04:05"},
+			Hooks:     make(logrus.LevelHooks),
+			Level:     logrus.InfoLevel,
+		}
 	default:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		return &logrus.Logger{
+			Out:       os.Stdout,
+			Formatter: &logrus.TextFormatter{FullTimestamp: true, TimestampFormat: "2006-01-02 15:04:05"},
+			Hooks:     make(logrus.LevelHooks),
+			Level:     logrus.InfoLevel,
+		}
 	}
-
-	return log
 }

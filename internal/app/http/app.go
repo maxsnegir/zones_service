@@ -5,16 +5,18 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type App struct {
-	log    *slog.Logger
+	log    *logrus.Logger
 	router *Router
 	host   string
 	port   int
 }
 
-func New(router *Router, host string, port int, log *slog.Logger) *App {
+func New(router *Router, host string, port int, log *logrus.Logger) *App {
 	return &App{
 		router: router,
 		host:   host,
@@ -42,14 +44,11 @@ func (a *App) Run() error {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log := a.log.With(slog.String("op", op))
-	log.Info("Starting HTTP server", slog.String("addr", fmt.Sprintf("http://%s:%d", a.host, a.port)))
+	a.log.Info("Starting HTTP server", slog.String("addr", fmt.Sprintf("http://%s:%d", a.host, a.port)))
 	err := srv.ListenAndServe()
 	return fmt.Errorf("%s: %w", op, err)
 }
 
 func (a *App) Stop() {
-	const op = "http.Stop"
-
-	a.log.With(slog.String("op", op)).Info("Gracefully stopped")
+	a.log.Info("Gracefully stopped")
 }

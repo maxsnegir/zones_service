@@ -37,11 +37,11 @@ func NewTestStorage(ctx context.Context) (*TestStorage, error) {
 
 func (t *TestStorage) CleanDB(ctx context.Context) {
 	const op = "psql.CleanDB"
-	const deleteZoneData = `TRUNCATE zone, zone_geometry  RESTART IDENTITY CASCADE;`
+	const deleteZoneData = `TRUNCATE zone, zone_geometry RESTART IDENTITY CASCADE;`
 
 	_, err := t.Storage.db.Exec(ctx, deleteZoneData)
 	if err != nil {
-		t.log.Error("%s: failed to clean up test database: %s", op, err.Error())
+		t.log.Errorf("%s: failed to clean up test database: %s", op, err.Error())
 	}
 }
 

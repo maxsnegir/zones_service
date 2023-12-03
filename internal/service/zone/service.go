@@ -2,7 +2,8 @@ package zone
 
 import (
 	"context"
-	"log/slog"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	"github.com/maxsnegir/zones_service/internal/dto"
@@ -20,12 +21,12 @@ type Provider interface {
 }
 
 type Service struct {
-	log          *slog.Logger
+	log          *logrus.Logger
 	zoneSaver    Saver
 	zoneProvider Provider
 }
 
-func New(log *slog.Logger, zoneSaver Saver, zoneProvider Provider) *Service {
+func New(log *logrus.Logger, zoneSaver Saver, zoneProvider Provider) *Service {
 	return &Service{
 		log:          log,
 		zoneSaver:    zoneSaver,

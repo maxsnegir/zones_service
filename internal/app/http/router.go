@@ -3,10 +3,10 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 
 	"github.com/maxsnegir/zones_service/internal/service/zone"
 )
@@ -19,11 +19,11 @@ const (
 
 type Router struct {
 	router      *mux.Router
-	log         *slog.Logger
+	log         *logrus.Logger
 	ZoneService *zone.Service
 }
 
-func NewRouter(router *mux.Router, zoneService *zone.Service, logger *slog.Logger) *Router {
+func NewRouter(router *mux.Router, zoneService *zone.Service, logger *logrus.Logger) *Router {
 	return &Router{
 		router:      router,
 		ZoneService: zoneService,
