@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/lib/pq"
 
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	"github.com/maxsnegir/zones_service/internal/dto"
@@ -24,7 +24,7 @@ func New(ctx context.Context, log *slog.Logger, DbConnString string) (*Storage, 
 
 	pool, err := pgxpool.Connect(ctx, DbConnString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		return nil, fmt.Errorf("%s:failed to connect to database: %w", op, err)
 	}
 	return &Storage{
 		db:  pool,
@@ -91,7 +91,12 @@ func (s *Storage) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJS
 		WHERE zg.zone_id = any($1)
 		GROUP BY zg.zone_id;`
 
-	rows, err := s.db.Query(ctx, query, pq.Array(ids))
+	zoneIds := &pgtype.Int4Array{}
+	if err := zoneIds.Set(ids); err != nil {
+		return nil, fmt.Errorf("failed to set zone ids: %w", err)
+	}
+
+	rows, err := s.db.Query(ctx, query, zoneIds)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get zones: %w", err)
 	}
@@ -128,7 +133,12 @@ func (s *Storage) ContainsPoint(ctx context.Context, ids []int, point dto.Point)
 		WHERE zone_id = any($3)
 		GROUP BY zg.zone_id, res;`
 
-	rows, err := s.db.Query(ctx, query, point.Lon, point.Lat, pq.Array(ids))
+	zoneIds := &pgtype.Int4Array{}
+	if err := zoneIds.Set(ids); err != nil {
+		return nil, fmt.Errorf("failed to set zone ids: %w", err)
+	}
+
+	rows, err := s.db.Query(ctx, query, point.Lon, point.Lat, zoneIds)
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to check contains point: %w", op, err)
 	}
