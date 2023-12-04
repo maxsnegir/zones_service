@@ -157,3 +157,14 @@ func (s *Storage) ContainsPoint(ctx context.Context, ids []int, point dto.Point)
 
 	return result, nil
 }
+
+func (s *Storage) DeleteZoneById(ctx context.Context, id int) error {
+	const op = "storage.DeleteZoneById"
+	const deleteZoneQuery = `DELETE FROM zone WHERE id = $1;`
+
+	_, err := s.db.Exec(ctx, deleteZoneQuery, id)
+	if err != nil {
+		return fmt.Errorf("%s: failed to delete zone: %w", op, err)
+	}
+	return nil
+}

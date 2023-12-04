@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	zoneService := zone.New(log, storage, storage)
+	zoneService := zone.New(log, storage, storage, storage)
 	appRouter := httpserver.NewRouter(mux.NewRouter(), zoneService, log)
 	appRouter.ConfigureRouter()
 	app := httpserver.New(appRouter, cfg.Server.Host, cfg.Server.Port, log)

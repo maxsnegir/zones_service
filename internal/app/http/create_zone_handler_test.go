@@ -109,7 +109,7 @@ func TestCreateZoneHandlerErr(t *testing.T) {
 	defer storage.CleanDB(ctx)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			zoneService := zone.New(log, storage, storage)
+			zoneService := zone.New(log, storage, storage, storage)
 			r := NewRouter(mux.NewRouter(), zoneService, log)
 
 			wr := httptest.NewRecorder()
@@ -157,7 +157,7 @@ func TestCreateZoneHandler_Ok(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			zoneService := zone.New(log, storage, storage)
+			zoneService := zone.New(log, storage, storage, storage)
 			r := NewRouter(mux.NewRouter(), zoneService, log)
 
 			wr := httptest.NewRecorder()
@@ -199,9 +199,10 @@ func TestCreateZoneHandler_DbErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockSaver := storageMock.NewMockSaver(ctrl)
 	mockProvider := storageMock.NewMockProvider(ctrl)
+	mockDeleter := storageMock.NewMockDeleter(ctrl)
 	mockSaver.EXPECT().SaveZoneFromFeatureCollection(gomock.Any(), gomock.Any()).Return(0, errors.New("DB DOWN")).Times(1)
 
-	zoneService := zone.New(log, mockSaver, mockProvider)
+	zoneService := zone.New(log, mockSaver, mockProvider, mockDeleter)
 	r := NewRouter(mux.NewRouter(), zoneService, log)
 
 	wr := httptest.NewRecorder()

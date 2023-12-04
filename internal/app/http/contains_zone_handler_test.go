@@ -117,7 +117,7 @@ func TestContainsPoint_Ok(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			zoneService := zone.New(log, storage, storage)
+			zoneService := zone.New(log, storage, storage, storage)
 			r := NewRouter(mux.NewRouter(), zoneService, log)
 
 			rawRequest, err := json.Marshal(tt.request)
@@ -201,6 +201,7 @@ func TestContainsPoint_Err(t *testing.T) {
 
 			mockSaver := storageMocks.NewMockSaver(ctrl)
 			mockProvider := storageMocks.NewMockProvider(ctrl)
+			mockDeleter := storageMocks.NewMockDeleter(ctrl)
 
 			if tt.dbErr == true {
 				mockProvider.EXPECT().
@@ -209,7 +210,7 @@ func TestContainsPoint_Err(t *testing.T) {
 					Times(1)
 			}
 
-			zoneService := zone.New(log, mockSaver, mockProvider)
+			zoneService := zone.New(log, mockSaver, mockProvider, mockDeleter)
 			r := NewRouter(mux.NewRouter(), zoneService, log)
 
 			w := httptest.NewRecorder()

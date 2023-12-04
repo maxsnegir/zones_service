@@ -51,6 +51,43 @@ func (mr *MockSaverMockRecorder) SaveZoneFromFeatureCollection(ctx, featureColle
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveZoneFromFeatureCollection", reflect.TypeOf((*MockSaver)(nil).SaveZoneFromFeatureCollection), ctx, featureCollection)
 }
 
+// MockDeleter is a mock of Deleter interface.
+type MockDeleter struct {
+	ctrl     *gomock.Controller
+	recorder *MockDeleterMockRecorder
+}
+
+// MockDeleterMockRecorder is the mock recorder for MockDeleter.
+type MockDeleterMockRecorder struct {
+	mock *MockDeleter
+}
+
+// NewMockDeleter creates a new mock instance.
+func NewMockDeleter(ctrl *gomock.Controller) *MockDeleter {
+	mock := &MockDeleter{ctrl: ctrl}
+	mock.recorder = &MockDeleterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDeleter) EXPECT() *MockDeleterMockRecorder {
+	return m.recorder
+}
+
+// DeleteZoneById mocks base method.
+func (m *MockDeleter) DeleteZoneById(ctx context.Context, id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteZoneById", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteZoneById indicates an expected call of DeleteZoneById.
+func (mr *MockDeleterMockRecorder) DeleteZoneById(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteZoneById", reflect.TypeOf((*MockDeleter)(nil).DeleteZoneById), ctx, id)
+}
+
 // MockProvider is a mock of Provider interface.
 type MockProvider struct {
 	ctrl     *gomock.Controller

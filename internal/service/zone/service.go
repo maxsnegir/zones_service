@@ -13,6 +13,10 @@ type Saver interface {
 	SaveZoneFromFeatureCollection(ctx context.Context, featureCollection geojson.FeatureCollection) (int, error)
 }
 
+type Deleter interface {
+	DeleteZoneById(ctx context.Context, id int) error
+}
+
 type Provider interface {
 	GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJSON, error)
 	ContainsPoint(ctx context.Context, ids []int, point dto.Point) ([]dto.ZoneContainsPointOut, error)
@@ -24,13 +28,15 @@ type Service struct {
 	log          *logrus.Logger
 	zoneSaver    Saver
 	zoneProvider Provider
+	zoneDeleter  Deleter
 }
 
-func New(log *logrus.Logger, zoneSaver Saver, zoneProvider Provider) *Service {
+func New(log *logrus.Logger, zoneSaver Saver, zoneProvider Provider, zoneDeleter Deleter) *Service {
 	return &Service{
 		log:          log,
 		zoneSaver:    zoneSaver,
 		zoneProvider: zoneProvider,
+		zoneDeleter:  zoneDeleter,
 	}
 }
 
@@ -47,4 +53,8 @@ func (s *Service) GetZonesByIds(ctx context.Context, ids []int) ([]dto.ZoneGeoJS
 
 func (s *Service) ContainsPoint(ctx context.Context, data dto.ZoneContainsPointIn) ([]dto.ZoneContainsPointOut, error) {
 	return s.zoneProvider.ContainsPoint(ctx, data.ZoneIds, data.Point)
+}
+
+func (s *Service) DeleteZone(ctx context.Context, id int) error {
+	return s.zoneDeleter.DeleteZoneById(ctx, id)
 }

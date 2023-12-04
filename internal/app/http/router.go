@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	createZoneRoute    = "/zones"
-	getZonesRoute      = "/zones"
+	createZoneRoute    = "/create"
+	getZonesRoute      = "/get"
 	zonesContainsPoint = "/contains"
+	deleteZoneRoute    = "/delete/{id}"
 )
 
 type Router struct {
@@ -40,6 +41,7 @@ func (r *Router) ConfigureRouter() {
 	r.router.HandleFunc(createZoneRoute, r.CreateZone()).Methods(http.MethodPost)
 	r.router.HandleFunc(getZonesRoute, r.GetZones()).Methods(http.MethodGet)
 	r.router.HandleFunc(zonesContainsPoint, r.ZonesContainsPoint()).Methods(http.MethodPost)
+	r.router.HandleFunc(deleteZoneRoute, r.DeleteZone()).Methods(http.MethodDelete)
 
 	// Middlewares
 	r.router.Use(r.loggingMiddleware)

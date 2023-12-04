@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 
 	"github.com/maxsnegir/zones_service/internal/domain/geojson"
 	"github.com/maxsnegir/zones_service/internal/dto"
@@ -110,5 +113,33 @@ func (r *Router) ZonesContainsPoint() http.HandlerFunc {
 		}
 
 		r.JsonResponse(w, http.StatusOK, result)
+	}
+}
+
+func (r *Router) DeleteZone() http.HandlerFunc {
+	const op = "handlers.DeleteZone"
+
+	type errResponseData struct {
+		Error string `json:"error,omitempty"`
+	}
+
+	return func(w http.ResponseWriter, req *http.Request) {
+		idStr := mux.Vars(req)["id"]
+
+		id, err := strconv.Atoi(idStr)
+		if err != nil || id < 1 {
+			response := errResponseData{Error: "invalid zone id"}
+			r.JsonResponse(w, http.StatusBadRequest, response)
+			return
+		}
+
+		err = r.ZoneService.DeleteZone(req.Context(), id)
+		if err != nil {
+			r.log.Error(fmt.Sprintf("%s: %v", op, err))
+			r.JsonResponse(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		r.JsonResponse(w, http.StatusNoContent, nil)
 	}
 }

@@ -90,7 +90,7 @@ func TestGetZonesByIds(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			zoneService := zone.New(log, storage, storage)
+			zoneService := zone.New(log, storage, storage, storage)
 			r := NewRouter(mux.NewRouter(), zoneService, log)
 
 			wr := httptest.NewRecorder()
@@ -176,7 +176,7 @@ func TestGetZonesHandlerErr(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			zoneService := zone.New(log, storage, storage)
+			zoneService := zone.New(log, storage, storage, storage)
 			r := NewRouter(mux.NewRouter(), zoneService, log)
 
 			wr := httptest.NewRecorder()
@@ -211,8 +211,9 @@ func TestGetZonesHandler_DbErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockSaver := storageMock.NewMockSaver(ctrl)
 	mockProvider := storageMock.NewMockProvider(ctrl)
+	mockDeleter := storageMock.NewMockDeleter(ctrl)
 
-	zoneService := zone.New(log, mockSaver, mockProvider)
+	zoneService := zone.New(log, mockSaver, mockProvider, mockDeleter)
 	r := NewRouter(mux.NewRouter(), zoneService, log)
 	mockProvider.EXPECT().GetZonesByIds(gomock.Any(), gomock.Any()).Return(nil, errors.New("DB DOWN")).Times(1)
 
