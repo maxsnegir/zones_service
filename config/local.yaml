@@ -1,7 +1,7 @@
 env: "local"
 
 storage:
-  dsn: "postgresql://postgres:postgres@localhost:6433/postgres?sslmode=disable"
+  dsn: "postgresql://postgres:postgres@localhost:6433/postgres?sslmode=disable&pool_max_conns=100&pool_min_conns=10"
 
 server:
   host: "localhost"

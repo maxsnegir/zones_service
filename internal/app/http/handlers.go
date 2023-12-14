@@ -116,6 +116,73 @@ func (r *Router) ZonesContainsPoint() http.HandlerFunc {
 	}
 }
 
+func (r *Router) AnyOfZonesContainsPint() http.HandlerFunc {
+	const op = "handlers.AnyOfZonesContainsPint"
+
+	type ResponseData struct {
+		Contains bool   `json:"contains"`
+		Error    string `json:"error,omitempty"`
+	}
+
+	return func(w http.ResponseWriter, req *http.Request) {
+		var requestData dto.ZoneContainsPointIn
+		var responseData ResponseData
+
+		if err := json.NewDecoder(req.Body).Decode(&requestData); err != nil {
+			responseData.Error = geojson.SerializationErr.Error()
+			r.JsonResponse(w, http.StatusBadRequest, responseData)
+			return
+		}
+		if err := requestData.Validate(); err != nil {
+			responseData.Error = err.Error()
+			r.JsonResponse(w, http.StatusBadRequest, responseData)
+			return
+		}
+
+		contains, err := r.ZoneService.AnyZoneContainsPoint(req.Context(), requestData)
+		if err != nil {
+			r.log.Error(fmt.Sprintf("%s: %v", op, err))
+			r.JsonResponse(w, http.StatusInternalServerError, nil)
+			return
+		}
+		responseData.Contains = contains
+		r.JsonResponse(w, http.StatusOK, responseData)
+	}
+}
+
+func (r *Router) BatchAnyOfZonesContainsPint() http.HandlerFunc {
+	const op = "handlers.GetZone"
+
+	type ErrResponseData struct {
+		Error string `json:"error,omitempty"`
+	}
+
+	return func(w http.ResponseWriter, req *http.Request) {
+		var errResponse ErrResponseData
+		var requestData dto.BatchZoneContainsPointInCollection
+
+		if err := json.NewDecoder(req.Body).Decode(&requestData); err != nil {
+			errResponse.Error = geojson.SerializationErr.Error()
+			r.JsonResponse(w, http.StatusBadRequest, errResponse)
+			return
+		}
+		if err := requestData.Validate(); err != nil {
+			errResponse.Error = err.Error()
+			r.JsonResponse(w, http.StatusBadRequest, errResponse)
+			return
+		}
+
+		result, err := r.ZoneService.ButchAnyZoneContainsPoint(req.Context(), requestData)
+		if err != nil {
+			r.log.Error(fmt.Sprintf("%s: %v", op, err))
+			r.JsonResponse(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		r.JsonResponse(w, http.StatusOK, result)
+	}
+}
+
 func (r *Router) DeleteZone() http.HandlerFunc {
 	const op = "handlers.DeleteZone"
 

@@ -8,7 +8,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
@@ -98,7 +98,7 @@ func ConnectToPostgres(ctx context.Context, pool *dockertest.Pool, databaseUrl s
 
 	err := pool.Retry(func() error {
 		var err error
-		db, err = pgxpool.Connect(ctx, databaseUrl)
+		db, err = pgxpool.New(ctx, databaseUrl)
 		if err != nil {
 			return fmt.Errorf("%s: failed to connect to database: %w", op, err)
 		}
