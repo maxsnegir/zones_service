@@ -111,6 +111,36 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 	return m.recorder
 }
 
+// AnyContainsPoint mocks base method.
+func (m *MockProvider) AnyContainsPoint(ctx context.Context, ids []int, point dto.Point) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AnyContainsPoint", ctx, ids, point)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AnyContainsPoint indicates an expected call of AnyContainsPoint.
+func (mr *MockProviderMockRecorder) AnyContainsPoint(ctx, ids, point interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AnyContainsPoint", reflect.TypeOf((*MockProvider)(nil).AnyContainsPoint), ctx, ids, point)
+}
+
+// ButchAnyZoneContainsPoint mocks base method.
+func (m *MockProvider) ButchAnyZoneContainsPoint(ctx context.Context, in dto.BatchZoneContainsPointInCollection) ([]dto.BatchZoneContainsPointOut, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ButchAnyZoneContainsPoint", ctx, in)
+	ret0, _ := ret[0].([]dto.BatchZoneContainsPointOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ButchAnyZoneContainsPoint indicates an expected call of ButchAnyZoneContainsPoint.
+func (mr *MockProviderMockRecorder) ButchAnyZoneContainsPoint(ctx, in interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ButchAnyZoneContainsPoint", reflect.TypeOf((*MockProvider)(nil).ButchAnyZoneContainsPoint), ctx, in)
+}
+
 // ContainsPoint mocks base method.
 func (m *MockProvider) ContainsPoint(ctx context.Context, ids []int, point dto.Point) ([]dto.ZoneContainsPointOut, error) {
 	m.ctrl.T.Helper()

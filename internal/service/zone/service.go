@@ -22,7 +22,7 @@ type Provider interface {
 	ContainsPoint(ctx context.Context, ids []int, point dto.Point) ([]dto.ZoneContainsPointOut, error)
 	AnyContainsPoint(ctx context.Context, ids []int, point dto.Point) (bool, error)
 	GetZonesCount(ctx context.Context) (int, error)
-	Temp(ctx context.Context, in dto.BatchZoneContainsPointInCollection) ([]dto.BatchZoneContainsPointOut, error)
+	ButchAnyZoneContainsPoint(ctx context.Context, in dto.BatchZoneContainsPointInCollection) ([]dto.BatchZoneContainsPointOut, error)
 }
 
 type Service struct {
@@ -70,75 +70,5 @@ type BatchZoneContainsPointOutWithError struct {
 }
 
 func (s *Service) ButchAnyZoneContainsPoint(ctx context.Context, in dto.BatchZoneContainsPointInCollection) ([]dto.BatchZoneContainsPointOut, error) {
-	const op = "service.ButchAnyZoneContainsPoint"
-	return s.zoneProvider.Temp(ctx, in)
+	return s.zoneProvider.ButchAnyZoneContainsPoint(ctx, in)
 }
-
-//	var maxWorkers = 50
-//
-//	workersCnt := len(in)
-//	if workersCnt > maxWorkers {
-//		workersCnt = maxWorkers
-//	}
-//	ctx, cancel := context.WithCancel(ctx)
-//	defer cancel()
-//
-//	resultChan := make(chan BatchZoneContainsPointOutWithError, len(in))
-//	jobs := make(chan dto.BatchZoneContainsPointIn, len(in))
-//	s.log.Errorf("%d", runtime.NumGoroutine())
-//	go func() {
-//		defer close(jobs)
-//
-//		for _, v := range in {
-//			jobs <- v
-//		}
-//	}()
-//
-//	wg := &sync.WaitGroup{}
-//	for i := 0; i < workersCnt; i++ {
-//		wg.Add(1)
-//
-//		go func() {
-//			defer wg.Done()
-//			s.batchAnyZoneWorker(ctx, jobs, resultChan)
-//		}()
-//	}
-//
-//	go func() {
-//		defer close(resultChan)
-//		wg.Wait()
-//	}()
-//
-//	results := make([]dto.BatchZoneContainsPointOut, 0, len(in))
-//	for res := range resultChan {
-//		if res.Error != nil {
-//			return nil, fmt.Errorf("%s: %w", op, res.Error)
-//		}
-//		results = append(results, res.BatchZoneContainsPointOut)
-//	}
-//	return results, nil
-//}
-//
-//func (s *Service) batchAnyZoneWorker(
-//	ctx context.Context,
-//	jobs <-chan dto.BatchZoneContainsPointIn,
-//	results chan<- BatchZoneContainsPointOutWithError,
-//) {
-//
-//	for job := range jobs {
-//		select {
-//		case <-ctx.Done():
-//			results <- BatchZoneContainsPointOutWithError{Error: ctx.Err()}
-//			return
-//		default:
-//			contains, err := s.zoneProvider.AnyContainsPoint(ctx, job.ZoneIds, job.Point)
-//			results <- BatchZoneContainsPointOutWithError{
-//				BatchZoneContainsPointOut: dto.BatchZoneContainsPointOut{
-//					Key:      job.Key,
-//					Contains: contains,
-//				},
-//				Error: err,
-//			}
-//		}
-//	}
-//}
